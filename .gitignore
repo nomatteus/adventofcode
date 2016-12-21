@@ -1,1 +1,4 @@
 *.class
+2016/out/
+**/.idea/
+**.iml
