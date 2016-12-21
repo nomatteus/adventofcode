@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 /**
  * Created by matt on 2016-12-21.
  */
-public class AdventOfCode2016Test {
+public class Day01Test {
     @Test
     public void testDay01_Part1() {
         Day01 day1 = new Day01();
