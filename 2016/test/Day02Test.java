@@ -14,6 +14,14 @@ public class Day02Test {
         Day02 day2 = new Day02();
         // My tests
         // Sample cases from problem
-        assertEquals("1985", day2.calculate(new Scanner("ULL\nRRDDD\nLURDL\nUUUUD")));
+        assertEquals("1985", day2.calculate(new Scanner("ULL\nRRDDD\nLURDL\nUUUUD"), 1));
+    }
+
+    @Test
+    public void testDay01_Part2() {
+        Day02 day2 = new Day02();
+        // My tests
+        // Sample cases from problem
+        assertEquals("5DB3", day2.calculate(new Scanner("ULL\nRRDDD\nLURDL\nUUUUD"), 2));
     }
 }
