@@ -12,8 +12,12 @@ public class Day05Test {
     @Test
     public void testDay01_Part1() throws Exception {
         Day05 day5 = new Day05();
-        // My tests
         // Sample cases from problem
-        assertEquals("18f47a30", day5.password("abc"));
+        assertEquals("18f47a30", day5.password_part1("abc"));
+        assertEquals("05ace8e3", day5.password_part2("abc"));
+        // Part1 solution - regression test
+        assertEquals("c6697b55", day5.password_part1("ffykfhsq"));
+        // Part2 solution
+        assertEquals("8c35d1ab", day5.password_part2("ffykfhsq"));
     }
 }
