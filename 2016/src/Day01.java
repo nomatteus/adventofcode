@@ -70,33 +70,12 @@ public class Day01 {
     }
 
     class Location extends ArrayList<Integer> {
-//        public Integer x;
-//        public Integer y;
-
         public Location(int x, int y) {
-//            this.x = x;
-//            this.y = y;
             super();
             // 2 element list
             this.add(0, x);
             this.add(1, y);
         }
-
-//        public boolean equals(Location other) {
-////            return other.x.equals(x) && other.y.equals(y);
-//            return true;
-//        }
-
-//        @Override
-//        public int hashCode() {
-////            int hashCode = x * 1000 + y + 1;
-//            int hashCode = 31;
-//            hashCode = 31 * x + x.hashCode();
-//            hashCode = 31 * y + y.hashCode();
-//
-//            System.out.println(String.format("(%d,%d) hashCode is %d", x, y, hashCode));
-//            return hashCode;
-//        }
 
         @Override
         public String toString() {
