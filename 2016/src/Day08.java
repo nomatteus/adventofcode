@@ -125,8 +125,7 @@ public class Day08 {
 
         System.out.print("--> Part 1: ");
         System.out.println(day8.getNumPixelsOn());
-        System.out.println(day8.toString());
         System.out.print("--> Part 2: ");
-//        System.out.println(countPart2);
+        System.out.println(day8.toString());
     }
 }
