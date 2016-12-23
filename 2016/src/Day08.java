@@ -94,6 +94,20 @@ public class Day08 {
                 this.rect(width, height);
                 break;
             case "rotate":
+                // get column or row, and number, and amount
+                String subject = scanner.next(); // row or column
+
+                scanner.next("(x|y)=(\\d+)");
+                MatchResult resultNum = scanner.match();
+                int num = Integer.parseInt(resultNum.group(2));
+                scanner.next(); // consume "by"
+                int amount = scanner.nextInt();
+                // execute command
+                if (subject.equals("row")) {
+                    rotateRow(num, amount);
+                } else { // col
+                    rotateColumn(num, amount);
+                }
                 break;
             default:
                 // invalid command
