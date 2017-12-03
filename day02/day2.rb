@@ -6,7 +6,7 @@ input_rows.each do |row|
   sum += values.max - values.min
 end
 
-puts "Part 1: #{sum}"
+puts "Part 1: #{sum}" # 42299
 
 sum = 0
 input_rows.each do |row|
@@ -29,4 +29,4 @@ input_rows.each do |row|
   sum += row_result
 end
 
-puts "Part 2: #{sum}"
+puts "Part 2: #{sum}" # 277
