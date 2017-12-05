@@ -1,30 +1,44 @@
-require 'pry'
+require_relative '../common/input'
 
-jumps = IO.read('./input').strip.split("\n").map(&:to_i)
+class JumpProgram
+  attr_reader :num_steps
 
-current_instruction = 0
-num_steps = 0
+  def initialize(jumps)
+    @jumps = jumps.dup
+  end
 
-while current_instruction >= 0 && current_instruction < jumps.size do
-  next_jump = jumps[current_instruction]
-  jumps[current_instruction] += 1
-  current_instruction += next_jump
-  num_steps += 1
+  def run
+    @num_steps = 0
+    current_instruction = 0
+
+    while inside_list?(current_instruction) do
+      next_jump = @jumps[current_instruction]
+      @jumps[current_instruction] += post_jump_offset(next_jump)
+      current_instruction += next_jump
+      @num_steps += 1
+    end
+    self
+  end
+
+  def inside_list?(instruction)
+    instruction >= 0 && instruction < @jumps.size
+  end
+
+  def post_jump_offset(jump_value)
+    1
+  end
 end
 
-puts "Part 1: #{num_steps} steps"
-
-
-# jumps = [0, 3, 0, 1, -3] # test
-jumps = IO.read('./input').strip.split("\n").map(&:to_i)
-current_instruction = 0
-num_steps = 0
-
-while current_instruction >= 0 && current_instruction < jumps.size do
-  next_jump = jumps[current_instruction]
-  jumps[current_instruction] += (next_jump >= 3 ? -1 : 1)
-  current_instruction += next_jump
-  num_steps += 1
+class StrangeJumpProgram < JumpProgram
+  def post_jump_offset(jump_value)
+    jump_value >= 3 ? -1 : 1
+  end
 end
 
-puts "Part 2: #{num_steps} steps"
+input = IntegerLineReader.new('./input').values
+
+part1 = JumpProgram.new(input).run
+puts "Part 1: #{part1.num_steps} steps"
+
+part2 = StrangeJumpProgram.new(input).run
+puts "Part 1: #{part2.num_steps} steps"
