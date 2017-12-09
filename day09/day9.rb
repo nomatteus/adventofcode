@@ -4,6 +4,7 @@ input = IO.read('./input').strip.chars
 
 cur_score = 0
 sum_score = 0
+garbage_count = 0
 cur_state = :GROUP
 
 input.each do |c|
@@ -29,7 +30,7 @@ input.each do |c|
     when '!'
       cur_state = :IGNORENEXT
     else
-      #noop (consume char)
+      garbage_count += 1
     end
   when :IGNORENEXT
     cur_state = :GARBAGE
@@ -37,3 +38,4 @@ input.each do |c|
 end
 
 puts "part 1: #{sum_score}"
+puts "part 2: #{garbage_count}"
