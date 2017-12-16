@@ -1,19 +1,22 @@
-require 'pry'
+INITIAL_PROGRAMS = 'abcdefghijklmnop'
 
 input = IO.read('./input').strip.split(',')
-# input = "s1,x3/4,pe/b".split(',') # test
 
 class PermutationPromenade
   def initialize(input)
     @moves = input
-    @programs = 'abcdefghijklmnop'.chars
-    # @programs = 'abcde'.chars #test
+    @parsed_moves = @moves.map { |m| parse_move(m) }
+    @programs = INITIAL_PROGRAMS.chars
   end
 
   def dance!
-    @moves.map { |m| parse_move(m) }.each do |move|
+    @parsed_moves.each do |move|
       send(move[:command], *move[:args])
     end
+    self
+  end
+
+  def to_s
     @programs.join
   end
 
@@ -52,5 +55,18 @@ private
 end
 
 part1 = PermutationPromenade.new(input).dance!
-
 puts "Part 1: #{part1}"
+
+# Figure out how many dances until the input repeats, then we can use that
+# to figure out the values after any number of dances using mod without a ton of calculation.
+test = PermutationPromenade.new(input).dance!
+num_dances_until_repeat = 1
+while test.to_s != INITIAL_PROGRAMS
+  test.dance!
+  num_dances_until_repeat += 1
+end
+
+part2 = PermutationPromenade.new(input)
+(1000000000 % num_dances_until_repeat).times { part2.dance! }
+puts "Part 2: #{part2}"
+
