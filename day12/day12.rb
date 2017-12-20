@@ -81,7 +81,6 @@ end
 
 root_vertex = graph.get_vertex(0)
 visited_vertices = graph.dfs(root_vertex)
-part1 = visited_vertices.size
+part1 = visited_vertices.uniq.size
 
-# TODO: submitt his to check
 puts "Part 1: #{part1}"

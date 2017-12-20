@@ -8,7 +8,7 @@ class Layer
   end
 
   def step
-    #nnop
+    # noop
   end
 
   def has_scanner?
@@ -93,5 +93,4 @@ end
 
 severity = firewall.packet_journey!
 
-# TODO: Enter this online
 puts "Part 1: #{severity}"
