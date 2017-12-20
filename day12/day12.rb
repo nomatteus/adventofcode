@@ -1,15 +1,4 @@
-require 'pry'
-
 lines = IO.read('./input').strip.split("\n")
-# lines = [ #test
-#   '0 <-> 2',
-#   '1 <-> 1',
-#   '2 <-> 0, 3, 4',
-#   '3 <-> 2, 4',
-#   '4 <-> 2, 3, 6',
-#   '5 <-> 6',
-#   '6 <-> 4, 5'
-# ]
 
 class Graph
   attr_accessor :vertices
@@ -58,7 +47,6 @@ class Vertex
 
   # Edges are just a collection of vertexes that we are connected to
   # Expects an array of vertices
-  # Doesn't handle duplicates at the moment (Assumes unique inputs)
   def add_edges(vertices)
     @edges += vertices
   end
@@ -84,3 +72,19 @@ visited_vertices = graph.dfs(root_vertex)
 part1 = visited_vertices.uniq.size
 
 puts "Part 1: #{part1}"
+
+
+groups = []
+# Track vertex IDs that have been assigned to a group (so we know we can skip them)
+vertex_ids_group_found = []
+
+graph.vertices.values.each do |vertex|
+  next if vertex_ids_group_found.include?(vertex.id)
+  visited_vertices = graph.dfs(vertex)
+  group_vertex_ids = visited_vertices.collect(&:id)
+  groups << group_vertex_ids
+  vertex_ids_group_found += group_vertex_ids
+end
+
+part2 = groups.size
+puts "Part 2: #{part2}"
