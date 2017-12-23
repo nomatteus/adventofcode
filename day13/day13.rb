@@ -67,8 +67,12 @@ class Firewall
   end
 
   # As defined in part 1
-  def packet_journey!
+  # Delay implements a delay of X steps (picoseconds) before starting the journey
+  def packet_journey!(delay=0)
     severity = 0
+
+    # Delay by given number of steps by executing the steps without travelling through layers
+    delay.times { layers.each(&:step) }
 
     # Outer loop, journey to each layer
     layers.each do |current_layer|
@@ -90,7 +94,31 @@ lines.each do |line|
   depth, range = line.split(': ').map(&:to_i)
   firewall.add_layer(depth, range)
 end
-
 severity = firewall.packet_journey!
 
 puts "Part 1: #{severity}"
+
+
+# Part 2: Find necessary delay to make it through the firewall
+delay_needed = 0
+
+loop do
+  caught = firewall.layers.detect do |layer|
+    if layer.has_scanner?
+      # Offset is how many steps (including the delay) to get to given layer
+      offset = delay_needed + layer.depth
+      iteration_length = (layer.range * 2 - 2)
+
+      # Check offset against number of iterations for layer to return to position 1, if 0 then it's "caught"
+      offset % iteration_length == 0
+    else
+      # Never caught on a layer with no scanner
+      false
+    end
+  end
+  break if !caught
+  delay_needed += 1
+end
+
+
+puts "Part 2: #{delay_needed}"
