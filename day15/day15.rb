@@ -39,3 +39,33 @@ num_matches = 0
 end
 
 puts "Part 1: #{num_matches} matches"
+
+
+class PickyGenerator < Generator
+  def initialize(start, factor, multiple)
+    super(start, factor)
+    @multiple = multiple
+  end
+
+  def next_value
+    # "Fast forward" to next value that conforms to our multiple
+    while (super % @multiple) != 0 do; end
+    @value
+  end
+end
+
+picky_gena = PickyGenerator.new(input_gena_start, GENA_FACTOR, 4)
+picky_genb = PickyGenerator.new(input_genb_start, GENB_FACTOR, 8)
+
+num_matches = 0
+5000000.times do
+  vala = picky_gena.next_value
+  valb = picky_genb.next_value
+
+  compare_vala = vala & COMPARE_MASK
+  compare_valb = valb & COMPARE_MASK
+
+  num_matches += 1 if compare_vala == compare_valb
+end
+
+puts "Part 2: #{num_matches} matches"
