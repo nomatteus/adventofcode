@@ -1,41 +1,39 @@
-require 'pry'
-
 lines = IO.read('./input').strip.split("\n")
-# lines = [ #test
-#   'add a 2',
-#   'mul a a',
-#   'mod a 5',
-#   'snd a',
-#   'set a 0',
-#   'rcv a',
-#   'jgz a -1',
-#   'set a 1',
-#   'jgz a -2',
-# ]
-
 
 class Program
-  attr_accessor :registers, :first_recovered_freq
+  attr_accessor :registers, :other_program, :is_receiving, :num_values_sent
 
-  def initialize(instructions)
+  def initialize(instructions, program_id)
     @instructions = parse_instructions(instructions)
     @next_instruction = 0
+
     # Set default value of all registers to 0
     @registers = Hash.new(0)
-    @freq = nil
-    @recovered_freq = nil
-    @first_recovered_freq = nil
+
+    # As defined by the problem:
+    @registers['p'] = program_id
+
+    # Initiate receiving queue
+    @messages_received = Queue.new
+
+    # Counter for our answer
+    @num_values_sent = 0
   end
 
-  def run!
-    while in_bounds(@next_instruction) && @first_recovered_freq.nil? do
-      send(*@instructions[@next_instruction])
-    end
+  def run_next_instruction
+    send(*@instructions[@next_instruction])
   end
 
-  def in_bounds(inst_index)
-    inst_index >= 0 && inst_index < @instructions.size
+  # Is next instruction in bounds?
+  def in_bounds?
+    @next_instruction >= 0 && @next_instruction < @instructions.size
   end
+
+  def send_value(val)
+    @messages_received << val
+  end
+
+private
 
   def set(x, y)
     @registers[x] = get_value(y)
@@ -58,16 +56,20 @@ class Program
   end
 
   def snd(x)
-    @freq = get_value(x)
+    @other_program.send_value(get_value(x))
+    @num_values_sent += 1
     @next_instruction += 1
   end
 
   def rcv(x)
-    unless get_value(x).zero?
-      @recovered_freq = @freq
-      @first_recovered_freq = @freq if @first_recovered_freq.nil?
+    @is_receiving = true
+    # If queue is empty, then will attempt to run instruction again
+    if @messages_received.size > 0
+      # Receive the message
+      @registers[x] = @messages_received.pop
+      @is_receiving = false
+      @next_instruction += 1
     end
-    @next_instruction += 1
   end
 
   def jgz(x, y)
@@ -90,16 +92,38 @@ class Program
 
   def parse_instructions(instructions)
     instructions.collect do |instruction|
-      instruction, register, value = instruction.split
+      instruction, val1, val2 = instruction.split
       # If not a lowercase single letter, then assume it is an integer if present
-      value = value.to_i unless value.nil? || is_register?(value)
-      raise if instruction.nil? || register.nil?
-      [instruction, register, value].compact
+      val1 = val1.to_i unless val1.nil? || is_register?(val1)
+      val2 = val2.to_i unless val2.nil? || is_register?(val2)
+      raise if instruction.nil? || val1.nil?
+      [instruction, val1, val2].compact
     end
   end
 end
 
-program = Program.new(lines)
-program.run!
+p0 = Program.new(lines, 0)
+p1 = Program.new(lines, 1)
+p0.other_program = p1
+p1.other_program = p0
 
-puts "Part 1: #{program.first_recovered_freq} is first recovered frequency"
+# Program runner
+p0_running = true
+p1_running = true
+while p0_running || p1_running do
+  p0.run_next_instruction if p0_running
+  p1.run_next_instruction if p1_running
+
+  # Check for program termination: out of bounds
+  p0_running = false unless p0.in_bounds?
+  p1_running = false unless p1.in_bounds?
+
+  # Deadlock detection
+  if (p0.is_receiving || !p0_running) && (p1.is_receiving || !p1_running)
+    p0_running = p1_running = false
+  end
+end
+
+# See commit f614898 for part1
+puts "Part 1: 7071 is first recovered frequency"
+puts "Part 2: p1 sent values #{p1.num_values_sent} times"
