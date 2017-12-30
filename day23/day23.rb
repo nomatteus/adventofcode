@@ -3,8 +3,10 @@ require 'pry'
 input_grid = IO.read('./input').strip.split("\n").map { |row| row.split('') }
 
 class GridComputingCluster
-  INFECTED = '#'
-  CLEAN = '.'
+  INFECTED  = '#'
+  CLEAN     = '.'
+  WEAKENED  = 'W'
+  FLAGGED   = 'F'
 
   # Setup direction vectors
   # Note that these are sorted in clockwise order, so we can use ordering to turn right/left
@@ -30,28 +32,53 @@ class GridComputingCluster
     @infection_count = 0
   end
 
-  def run!
-    10000.times { burst }
+  def run_part1!
+    10000.times { burst_part1 }
+    @infection_count
+  end
+
+  def run_part2!
+    10000000.times { burst_part2 }
     @infection_count
   end
 
   # A single "burst" (movement)
-  def burst
+  def burst_part1
     if @grid[@current_node] == INFECTED
       turn(:right)
-    else
-      turn(:left)
-    end
-
-    # Infect or clean the node (toggle)
-    if @grid[@current_node] == INFECTED
       @grid[@current_node] = CLEAN
     else
+      turn(:left)
       @grid[@current_node] = INFECTED
       @infection_count += 1
     end
 
     move
+  end
+
+  # A single burst for part2
+  def burst_part2
+    case @grid[@current_node]
+    when CLEAN, nil
+      turn(:left)
+      @grid[@current_node] = WEAKENED
+    when WEAKENED
+      # do not turn
+      @grid[@current_node] = INFECTED
+      @infection_count += 1
+    when INFECTED
+      turn(:right)
+      @grid[@current_node] = FLAGGED
+    when FLAGGED
+      reverse
+      @grid[@current_node] = CLEAN
+    end
+
+    move
+  end
+
+  def reverse
+    2.times { turn(:right) }
   end
 
   def turn(direction)
@@ -90,6 +117,9 @@ private
 end
 
 part1_grid = GridComputingCluster.new(input_grid)
-part1 = part1_grid.run!
-
+part1 = part1_grid.run_part1!
 puts "Part 1: #{part1}"
+
+part2_grid = GridComputingCluster.new(input_grid)
+part2 = part2_grid.run_part2!
+puts "Part 2: #{part2}"
