@@ -74,6 +74,7 @@ program = Program.new(input)
 
 # Program runner
 program_running = true
+prev_b = nil
 while program_running do
   program.run_next_instruction
 
@@ -82,6 +83,39 @@ while program_running do
 end
 
 puts "Part 1: #{program.num_mul_ops}"
-# puts "Part 2: "
 
 
+############ PART 2
+
+# This is a conversion from the given assembly code, then simplified to
+# remove the nested loop structure.
+# It has been simplified/combined when possible
+a = 1
+b = 106700
+h = 0
+
+# Speed up cases where factor found by returning immediately when first pair found
+# Rewrote the given loop logic to remove the nested loop by using mod to check for a divisor
+def has_two_num_factor?(num)
+  (2...num).each do |d|  # note that the non-inclusive range is used
+    remainder = num % d
+    if remainder == 0
+      return true
+    end
+  end
+  return false
+end
+
+# infinite loop
+while 1 != 0 do
+  if has_two_num_factor?(b)
+    h = h + 1
+  end
+
+  if b == 123700
+    puts "Part 2: h => #{h}"
+    exit
+  end
+
+  b = b + 17
+end
