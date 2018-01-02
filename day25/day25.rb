@@ -1,4 +1,3 @@
-require 'pry'
 input = IO.read('./input').strip.split("\n\n")
 
 # Input parsing regex
