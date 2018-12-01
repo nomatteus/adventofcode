@@ -1,11 +1,10 @@
-require 'pry'
 require 'set'
 
 frequency_changes = IO.read('./input').strip.split("\n").map(&:to_i)
 
 part1 = frequency_changes.sum
-
 puts "Part 1: #{part1}"
+
 
 freq = 0
 i = 0
