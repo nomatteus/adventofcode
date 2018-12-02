@@ -26,19 +26,24 @@ puts "Part 1: #{part1}"
 
 input.each_with_index do |word1, i|
   input[i+1..-1].each do |word2|
-    diff = letter_count_map[word1].to_a - letter_count_map[word2].to_a
-
-    if diff.size == 1 && diff.first[1] == 1
-      # Verify solution by checking to make sure words differ by only one letter in one position
-      char_diffs = 0
-      0.upto(word1.size - 1).each do |i|
-        char_diffs += 1 unless word1[i] == word2[i]
+    char_diffs = 0
+    j = 0
+    for j in 0...word1.size
+      if word1[j] != word2[j]
+        char_diffs += 1
+        loc = j
       end
+      break if char_diffs > 1
+      j += 1
+    end
 
-      if char_diffs == 1
-        part2 = (word1.chars - [diff.first[0]]).join
-        puts "Part 2: #{part2}"
-      end
+    if char_diffs == 1
+      answer = word1.chars
+      answer.delete_at(loc)
+      part2 = answer.join
+      puts "Part 2: #{part2}"
+      exit(0)
     end
   end
 end
+
