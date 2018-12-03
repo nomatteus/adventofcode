@@ -7,22 +7,18 @@ puts "Part 1: #{part1}"
 
 
 freq = 0
-i = 0
-duplicate_found = false
 frequencies_seen = Set.new
+duplicate_freq = nil
 
-while !duplicate_found do
-  change = frequency_changes[i]
+frequency_changes.cycle do |change|
   freq += change
 
-  if frequencies_seen.include? freq
-    duplicate_found = true
+  if frequencies_seen.include?(freq)
     duplicate_freq = freq
+    break
   else
     frequencies_seen << freq
   end
-
-  i = (i + 1) % frequency_changes.size
 end
 
 puts "Part 2: #{duplicate_freq}"

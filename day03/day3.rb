@@ -1,13 +1,6 @@
-# Include common code (reading input, and outputting answer) that is used all the time.
-
-require 'set'
-require 'pry'
-
 GRID_SIZE = 1001
-# GRID_SIZE = 11
 
-input = IO.read('./input').strip.split("\n")#.map(&:to_i)
-# input = IO.read('./input_small').strip.split("\n")
+input = IO.read('./input').strip.split("\n")
 
 grid = Array.new(GRID_SIZE)
 grid.each_with_index do |col, i|
@@ -24,8 +17,8 @@ input.each do |claim|
 end
 
 overlaps = 0
-0.upto(GRID_SIZE-1).each do |x|
-  0.upto(GRID_SIZE-1).each do |y|
+(0...GRID_SIZE).each do |x|
+  (0...GRID_SIZE).each do |y|
     if grid[x][y] >= 2
       overlaps += 1
     end
@@ -34,7 +27,9 @@ end
 
 puts "Part 1: #{overlaps}"
 
-
+# Check the grid again: if all squares are 1 for any claim, then that means
+# it is still intact
+intact_id = nil
 input.each do |claim|
   id, x, y, w, h = claim.scan(/\d+/).map(&:to_i)
   intact = true
@@ -46,8 +41,7 @@ input.each do |claim|
     end
   end
 
-  puts "claim id #{id} is intact" if intact
+  intact_id = id if intact
 end
 
-
-# puts "Part 2: #{part2}"
+puts "Part 2: #{intact_id}"
