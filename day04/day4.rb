@@ -20,6 +20,7 @@ input.each do |record|
     awake_at = minute
 
     guard_records[current_guard] ||= []
+
     # Log each minute awake (do NOT include awake_at minute)
     (sleep_at...awake_at).each do |min|
       guard_records[current_guard] << min
@@ -27,33 +28,34 @@ input.each do |record|
   end
 end
 
-guard_id_sleepiest, sleep_mins = guard_records.sort_by { |g, m| -m.size }.first
+# Build a hash of sleep frequencies.
+def generate_sleep_freq(sleep_mins)
+  freq = Hash.new(0)
+  sleep_mins.each { |m| freq[m] += 1 }
+  freq
+end
 
-sleep_freq = Hash.new(0)
-sleep_mins.each { |m| sleep_freq[m] += 1 }
 
-max = sleep_freq.values.max
-minute_most = sleep_freq.invert[max]
+part1_guard_id, part1_sleep_mins = guard_records.max_by { |g, mins| mins.size }
 
+sleep_freq = generate_sleep_freq(part1_sleep_mins)
+
+minute_most, minute_count = sleep_freq.max_by { |k, v| v }
 
 
 
 guard_freqs = {}
 guard_each_max = {}
 guard_records.each do |guard_id, sleepmins|
-  guard_freqs[guard_id] = Hash.new(0)
-  sleepmins.each { |m| guard_freqs[guard_id][m] += 1 }
-  max = guard_freqs[guard_id].values.max
-  max_minute = guard_freqs[guard_id].invert[max]
+  guard_freqs[guard_id] = generate_sleep_freq(sleepmins)
+  max_minute, max = guard_freqs[guard_id].max_by { |k, v| v }
   guard_each_max[guard_id] = { count: max, minute: max_minute }
 end
+guard2_id, res2 = guard_each_max.max_by { |k, v| v[:count] }
 
-guard2_id, res2 = guard_each_max.to_a.sort_by { |a| -a[1][:count] }.first
+binding.pry
 
-
-
-
-part1 = minute_most * guard_id_sleepiest
+part1 = minute_most * part1_guard_id
 part2 = guard2_id * res2[:minute]
 
 puts "Part 1: #{part1}" # 151754
