@@ -100,3 +100,14 @@ time (`O(1)`).
 A `Set` or `Hash` (or `HashSet`/`HashMap` in Java) is often the solution to
 speed up slow-running code.
 
+### Profiling Using Flame Graphs
+
+Will talk about this more later, but we can profile code using flame graphs
+to see where the most time is spent.
+
+As a simple example, these are flame graphs for the `Set` vs. the `Array` version
+of this solution:
+
+* [flamegraph-array.svg](./flamegraph-array.svg)
+* [flamegraph-set.svg](./flamegraph-set.svg)
+
