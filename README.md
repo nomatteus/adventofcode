@@ -18,7 +18,7 @@ I will be writing up solutions for some of the problems, as time permits.
 
 The following are complete:
 
-* [day01/Day01.md](./blob/master/day01/Day01.md)
+* [day01/Day01.md](./day01/Day01.md)
 
 The following will be written for sure after the problems are released, as I
 will be presenting them at a lunch and learn:
