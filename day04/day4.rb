@@ -35,15 +35,7 @@ def generate_sleep_freq(sleep_mins)
   freq
 end
 
-
-part1_guard_id, part1_sleep_mins = guard_records.max_by { |g, mins| mins.size }
-
-sleep_freq = generate_sleep_freq(part1_sleep_mins)
-
-minute_most, minute_count = sleep_freq.max_by { |k, v| v }
-
-
-
+# Generate a sleep frequency for each guard
 guard_freqs = {}
 guard_each_max = {}
 guard_records.each do |guard_id, sleepmins|
@@ -51,12 +43,15 @@ guard_records.each do |guard_id, sleepmins|
   max_minute, max = guard_freqs[guard_id].max_by { |k, v| v }
   guard_each_max[guard_id] = { count: max, minute: max_minute }
 end
-guard2_id, res2 = guard_each_max.max_by { |k, v| v[:count] }
 
-binding.pry
+# Use the generated data structures to solve part 1 and 2
+part1_guard_id = guard_records.max_by { |g, mins| mins.size }[0]
+part1_most_freq_minute = guard_freqs[part1_guard_id].max_by { |k, v| v }[0]
 
-part1 = minute_most * part1_guard_id
-part2 = guard2_id * res2[:minute]
+part2_guard_id, res2 = guard_each_max.max_by { |k, v| v[:count] }
+
+part1 = part1_most_freq_minute * part1_guard_id
+part2 = part2_guard_id * res2[:minute]
 
 puts "Part 1: #{part1}" # 151754
 puts "Part 2: #{part2}" # 19896
