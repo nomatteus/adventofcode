@@ -4,19 +4,6 @@ require 'pry'
 input = IO.read('./input').strip.split("\n")
 # input = IO.read('./input_small').strip.split("\n")
 
-=begin
-2 parts to this:
-  - implementing data structure/logic to calculate vectors as they move
-  - implementing detection of a message
-      could check for e.g. positions where there are multiple things "on" in a row and column
-
-The other idea is to just output the grid on screen and watch for the message to form.
-  will try that first :D
-
-also note that the positions given are large numbers, so will have to calculate
-  a bounding box and then translate the positions to that? i.e. to display on screen
-=end
-
 class Point
   attr_accessor :x, :y, :vx, :vy
 

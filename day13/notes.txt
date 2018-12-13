@@ -1,0 +1,81 @@
+(Just some notes to figure out which direction to turn when etc.)
+
+for / and \ it depends on which direction you are currently going.
+
+for '/' turn char:
+
+        /--<---           left      turn left        
+
+    -->-/                 right     turn left
+
+        v                 down      turn right
+        |
+        /
+
+        /                  up       turn right
+        |
+        ^
+
+for '\' turn char:
+
+        \--<---           left      turn right        
+
+    -->-\                 right     turn right
+
+        v                 down      turn left
+        |
+        \
+
+        \                  up       turn left
+        |
+        ^
+
+So this can be simplified a bit, since the rules are kinda grouped...
+
+for '/' char:
+  if direction is left or right, turn left
+  if direction is up or down, turn right
+
+for '\' char:
+  if direction is left or right, turn right
+  if direction is up or down, turn left
+
+for intersections, our logic will cycle through which way to turn
+
+
+
+SO after we know which way to turn, the only logic left is to implement the 
+turn depending on current position. Actually, all we really need to do is 
+change the current direction, and then move straight after that.
+
+                         
+   char  current dir  |   turn   |  new dir
+----------------------|----------|----------
+    >      right      |   left   |    up
+    >      right      |   right  |   down
+    <      left       |   left   |   down
+    <      left       |   right  |    up
+    ^       up        |   left   |   left
+    ^       up        |   right  |   right
+    v      down       |   left   |   right
+    v      down       |   right  |   left
+
+
+   char  current dir  |   turn   |  new dir
+----------------------|----------|----------
+    >      right      |   right  |   down
+    <      left       |   right  |    up
+    ^       up        |   right  |   right
+    v      down       |   right  |   left
+
+    >      right      |   left   |    up
+    <      left       |   left   |   down
+    ^       up        |   left   |   left
+    v      down       |   left   |   right
+
+
+
+
+
+
+
