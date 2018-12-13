@@ -1,11 +1,6 @@
 require 'set'
 require 'pry'
 
-# Note that it is important to preserve whitespace on input (i.e. be careful about "trim trailing spaces on save option")
-input = IO.read('./input').strip.split("\n")
-# input = IO.read('./input_small').strip.split("\n")
-
-# Reading in the data into our Grid/Cart classes
 CARTS = ['<', '>', '^', 'v'].to_set
 DIRECTIONS_MAP = {
   '<' => :left,
@@ -40,7 +35,7 @@ class Cart
       turn(@intersection_turn.next)
       move_straight
     # when ' ' then raise "You're off track! Something went horribly wrong..."
-    else 
+    else
       # For '|' or '-' we just move straight along
       move_straight
     end
@@ -54,8 +49,8 @@ class Cart
     [@x, @y] <=> [other_cart.x, other_cart.y]
   end
 
-private 
-  
+private
+
   # Move in a straight direction, depending on @current_dir
   def move_straight
     case @current_dir
@@ -125,7 +120,7 @@ end
 
 class Track
   def initialize(num_rows, num_cols)
-    @grid = Array.new(num_cols) { Array.new(num_rows) { ' ' } } 
+    @grid = Array.new(num_cols) { Array.new(num_rows) { ' ' } }
     @carts = []
   end
 
@@ -140,20 +135,39 @@ class Track
 
   # Will return [nil, nil] unless there is a crash at any moment, in which
   # case it returns the position of the first crash
-  def tick
+  def tick_part1
     # We must process cart movements from top row first, left to right
     # Then, after each cart movement, we check for a crash at that instant
     @carts.sort.each do |cart|
       cart.tick(@grid)
-      crash = crash_pos
-      return crash unless crash.nil?
+      crash_pos = get_crash_pos
+      return crash_pos unless crash_pos.nil?
+    end
+    [nil, nil]
+  end
+
+  # For part 2, when there is a crash, we remove the carts and keep going.
+  #
+  def tick_part2
+    # We must process cart movements from top row first, left to right
+    # Then, after each cart movement, we check for a crash at that instant
+    @carts.sort.each do |cart|
+      cart.tick(@grid)
+      crash_pos = get_crash_pos
+      unless crash_pos.nil?
+        # Remove all carts at the crash position
+        @carts.delete_if { |cart| [cart.x, cart.y] == crash_pos }
+      end
+
+      # We will return once there is only one cart remaining.
+      return [@carts.first.x, @carts.first.y] if @carts.size == 1
     end
     [nil, nil]
   end
 
   # Create a string with carts on it for output only (do not modify grid)
   def to_s
-    output = Array.new(@grid.first.size) { Array.new(@grid.size) { ' ' } } 
+    output = Array.new(@grid.first.size) { Array.new(@grid.size) { ' ' } }
     positions_cart_map = Hash.new(nil)
     @carts.each do |cart|
       # Assume no crash (we check that elsewhere)
@@ -176,7 +190,7 @@ private
 
   # If there is a crash, will return 2-element array with coordinates.
   # If no crash, returns nil
-  def crash_pos
+  def get_crash_pos
     cart_coords = Set.new
     @carts.each do |cart|
       coords = [cart.x, cart.y]
@@ -191,34 +205,54 @@ private
   end
 end
 
-num_rows = input.size
-num_cols = input.first.size
-track = Track.new(num_rows, num_cols)
+def read_input
+  input = IO.read('./input').strip.split("\n")
+  # input = IO.read('./input_small').strip.split("\n")
 
-input.each_with_index do |row, y|
-  row.chars.each_with_index do |val, x|
-    if CARTS.include?(val)
-      track.add_cart(x, y, DIRECTIONS_MAP[val])
-      # Not strictly necessary, but to keep it clean, replace the cart with correct character on our track
-      # Note that after reading input, we will not use cart characters at all, instead we will just track
-      # their positions.
-      val = '|' if ['^', 'v'].include?(val)
-      val = '-' if ['<', '>'].include?(val)
+  num_rows = input.size
+  num_cols = input.first.size
+  track = Track.new(num_rows, num_cols)
+
+  input.each_with_index do |row, y|
+    row.chars.each_with_index do |val, x|
+      if CARTS.include?(val)
+        track.add_cart(x, y, DIRECTIONS_MAP[val])
+        # Not strictly necessary, but to keep it clean, replace the cart with correct character on our track
+        # Note that after reading input, we will not use cart characters at all, instead we will just track
+        # their positions.
+        val = '|' if ['^', 'v'].include?(val)
+        val = '-' if ['<', '>'].include?(val)
+      end
+
+      track.set_val(x, y, val)
     end
-
-    track.set_val(x, y, val)
   end
+  track
 end
 
 crashx = nil
 crashy = nil
 
-loop do 
-  crashx, crashy = track.tick
+# Part 1
+track = read_input
+loop do
+  crashx, crashy = track.tick_part1
   # Check for a crash
   break unless crashx.nil? && crashy.nil?
 end
+part1 = "Crashed at #{crashx},#{crashy}"
 
-puts "Part 1: Crashed at #{crashx},#{crashy}" # 71,121
-puts "Part 2: #{}"
+# Part 2
+lastx = nil
+lasty = nil
+track = read_input
+loop do
+  lastx, lasty = track.tick_part2
+  # Check for end condition
+  break unless lastx.nil? && lasty.nil?
+end
+part2 = "Last cart at #{lastx},#{lasty}"
+
+puts "Part 1: #{part1}" # 71,121
+puts "Part 2: #{part2}" # 71,76
 
