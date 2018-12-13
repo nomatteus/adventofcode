@@ -58,4 +58,4 @@ part2_best = nil
   part2_best = part2_size if part2_best.nil? || part2_size < part2_best
 end
 
-puts "Part 2: #{part2_best}"
+puts "Part 2: #{part2_best}" # 6188
