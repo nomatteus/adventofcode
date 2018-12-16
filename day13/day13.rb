@@ -34,7 +34,7 @@ class Cart
     when '+'
       turn(@intersection_turn.next)
       move_straight
-    # when ' ' then raise "You're off track! Something went horribly wrong..."
+    when ' ' then raise "You're off track! Something went horribly wrong..."
     else
       # For '|' or '-' we just move straight along
       move_straight
@@ -112,7 +112,6 @@ private
     elsif @current_dir == :up && turn_dir == :left || @current_dir == :down && turn_dir == :right
       @current_dir = :left
     else
-      binding.pry
       raise "You took a wrong turn..."
     end
   end
