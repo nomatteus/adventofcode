@@ -1,0 +1,18 @@
+Part 1
+----------------------------------------
+
+For each of the test cases, we will try all 16 opcodes to see if they would
+apply to the given before/after register values, and opcode & input & output.
+
+
+Part 2
+----------------------------------------
+
+Given the list of valid ops for each input from part 1, we need to deduce (map)
+the operations to their operation number, so that we can execute the input
+correctly. This sounds like it could use a backtracking algorithm, where we try
+to find a mapping that satisfies the constraints given.
+
+For backtracking, need a sort of tree structure, where each node contains a partial
+solution. At each point, if we find a contradition, then move up to the parent and
+try the next option. We can implement this using recursion.
