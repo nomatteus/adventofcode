@@ -27,7 +27,10 @@ end
 # Output: Set of points (as Vectors)
 def calculate_wire_set(wire_instructions)
   current_point = STARTING_POINT
+  current_distance = 0
   point_set = Set.new(current_point)
+  # For part 2, we will track the distance to each point
+  point_distances = {}
   wire_instructions.each do |instruction_str|
     instruction = parse_instruction(instruction_str)
 
@@ -35,9 +38,12 @@ def calculate_wire_set(wire_instructions)
     instruction[:num].times do
       current_point += instruction[:dir_vector]
       point_set << current_point
+      current_distance += 1
+      # Note that we only store the *first* distance we see, if we travel to the same point
+      point_distances[current_point] = current_distance unless point_distances.key? current_point
     end
   end
-  point_set
+  return point_set, point_distances
 end
 
 # Since we set starting point to 0,0, this is easy
@@ -50,8 +56,8 @@ wire_strings = IO.read(input_file).split("\n")
 wires = wire_strings.map { |wire_str| wire_str.split(",") }
 
 # Calculate set of points that each wire
-wire1_set = calculate_wire_set(wires[0])
-wire2_set = calculate_wire_set(wires[1])
+wire1_set, wire1_distances = calculate_wire_set(wires[0])
+wire2_set, wire2_distances = calculate_wire_set(wires[1])
 
 # Starting point does not count as a crossed point (by problem definition)
 crossed_points = wire1_set & wire2_set - STARTING_POINT
@@ -62,3 +68,7 @@ closest_point = crossed_points.min_by { |point| manhattan_distance(point) }
 part1 = manhattan_distance(closest_point)
 puts "Part 1: #{part1}"
 
+
+least_distance_point = crossed_points.min_by { |point| wire1_distances[point] + wire2_distances[point] }
+part2 = wire1_distances[least_distance_point] + wire2_distances[least_distance_point]
+puts "Part 2: #{part2}"
