@@ -12,7 +12,7 @@
 
 Solutions for [`http://adventofcode.com`](http://adventofcode.com)
 
-Current Progress:
+Current Progress (as of Dec. 1, 2019):
 
 | Year                                     | # Solved      | Progress                          |
 | ---------------------------------------- | ------------- | --------------------------------- |
