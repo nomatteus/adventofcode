@@ -1,92 +1,115 @@
-# Messy solution for day 2
-input = IO.read('input')
-# input = "1,0,0,0,99"
-
-nums = input.split(",").map(&:to_i)
-
-# only for my input:
-nums[1] = 12
-nums[2] = 2
-
-res = nil
-i = 0
-
-while res != :done do
-  op, num1, num2, pos = nums.slice(i, 4)
-
-  # puts "op: #{op}, num1: #{num1}, num2: #{num2}, pos: #{pos}, "
-
-  res = case op
-  when 1 then nums[num1] + nums[num2]
-  when 2 then nums[num1] * nums[num2]
-  when 99 then :done # done
-  else raise "error! invalid opcode: #{op}"
+module Intcode
+  module Helpers
+    def self.parse_program(str)
+      str.strip.split(",").map(&:to_i)
+    end
   end
 
-  if res != :done
-    nums[pos] = res
-  end
+  class Computer
+    attr_accessor :program
 
-  # puts nums.join(",")
+    # Map of opcodes to how many params each accepts
+    OPCODES = {
+      1  => { num_params: 3 },
+      2  => { num_params: 3 },
+      99 => { num_params: 0 },
+    }
 
-  i += 4
-end
+    # Opcodes (day 2)
+    # 1: add 2 numbers, store in 3rd position
+    # 2: multiple 2 numbers, store in 3rd position
+    # 99: halt the program
+    def initialize(program, noun, verb)
+      @original_program = program.dup
+      @noun = noun
+      @verb = verb
+      reset!
+    end
 
+    # Set initial values
+    def reset!
+      @program = @original_program.dup
+      @running = false
 
-puts "Part 1:"
-puts nums[0]
+      # Current Instruction
+      @current_inst = 0
 
+      @program[1] = @noun
+      @program[2] = @verb
+    end
 
-######################################################################################
+    # Input:
+    #   program: An array of integers.
+    def run
+      reset!
+      @running = true
 
+      while @running
+        # Read next instruction
+        instruction = next_instruction
+        params = read_params(instruction)
 
-input = IO.read('input')
-# input = "1,0,0,0,99"
-
-nums_input = input.split(",").map(&:to_i)
-
-
-0.upto(100).each do |noun|
-  0.upto(100).each do |verb|
-    # Use original input on each iteration
-    nums = nums_input.dup
-
-    # only for my input:
-    nums[1] = noun
-    nums[2] = verb
-
-    res = nil
-    i = 0
-
-    while res != :done do
-      op, num1, num2, pos = nums.slice(i, 4)
-
-      # puts "op: #{op}, num1: #{num1}, num2: #{num2}, pos: #{pos}, "
-
-      res = begin
-        case op
-        when 1 then nums[num1] + nums[num2]
-        when 2 then nums[num1] * nums[num2]
-        when 99 then :done # done
-        else raise "invalid opcode" # invalid opcode
+        case instruction
+        when 1 then add(*params)
+        when 2 then multiply(*params)
+        when 99 then quit(*params)
+        else
+          raise "Invalid Opcode #{instruction}"
         end
-      rescue => exception
-        # invalid opcode or invalid reference
-        break
       end
-
-      if res != :done
-        nums[pos] = res
-      end
-
-      i += 4
     end
 
-    if nums[0] == 19690720
-      puts "Part 2:"
-      puts "noun: #{noun}, verb: #{verb}"
-      puts "100 * noun + verb = #{100 * noun + verb}"
-      break
+    private
+
+    def next_instruction
+      inst = @program[@current_inst]
+      @current_inst += 1
+      inst
     end
+
+    # Given an opcode, read and return the params for this instruction
+    def read_params(opcode)
+      num_params = OPCODES[opcode][:num_params]
+      num_params.times.map { next_instruction }
+    end
+
+    # Opcode: 1
+    # Adds 2 numbers, and stores
+    def add(num1, num2, pos)
+      @program[pos] = @program[num1] + @program[num2]
+    end
+
+    # Opcode: 2
+    # Multiplies 2 numbers, and stores
+    def multiply(num1, num2, pos)
+      @program[pos] = @program[num1] * @program[num2]
+    end
+
+    # Opcode: 99
+    def quit
+      @running = false
+    end
+
+
   end
 end
+
+input = IO.read('input')
+program = Intcode::Helpers.parse_program(input)
+
+# Part 1: hardcoded noun/verb
+computer1 = Intcode::Computer.new(program, 12, 2)
+computer1.run
+
+puts "Part 1: #{computer1.program[0]}" # 3790689
+
+
+result2 = ((0..100).to_a * 2).permutation(2).to_a.find do |noun, verb|
+  computer2 = Intcode::Computer.new(program, noun, verb)
+  computer2.run
+  output = computer2.program[0]
+
+  output == 19690720
+end
+
+puts "Part 2 (100 * noun + verb): #{100 * result2[0] + result2[1]}" # 6533
