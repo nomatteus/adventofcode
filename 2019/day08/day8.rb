@@ -1,5 +1,3 @@
-require 'pry'
-
 input = IO.read('input').strip.split(//).map(&:to_i)
 
 class ImageParser
@@ -59,8 +57,6 @@ class ImageParser
 end
 
 image = ImageParser.new(pixels: input, width: 25, height: 6)
-# Test image...
-# image = ImageParser.new(pixels: [0,2,2,2,1,1,2,2,2,2,1,2,0,0,0,0], width: 2, height: 2)
 
 # To make sure the image wasn't corrupted during transmission, the Elves
 # would like you to find the layer that contains the fewest 0 digits.
