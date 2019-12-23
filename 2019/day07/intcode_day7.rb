@@ -44,17 +44,17 @@ module Intcode
 
     def initialize(program, input=[])
       @original_program = program.dup
-      # Input is an array of values. Reverse, so we can use pop to
-      # get the next input value.
-      @input = input.reverse
-      @output = []
-      reset!
-    end
+      @program = program.dup
+      # Input is an array of values
+      @input = Array(input)
 
-    # Set initial values
-    def reset!
-      @program = @original_program.dup
+      # We output one value at a time (must call run again to continue)
+      @output = nil
+
       @running = false
+      # Now that we support resuming execution, we will track when the
+      # program is actually terminated (i.e. a 99-quit command is executed)
+      @terminated = false
 
       # Current Instruction
       @current_inst = 0
@@ -63,7 +63,6 @@ module Intcode
     # Input:
     #   program: An array of integers.
     def run
-      reset!
       @running = true
 
       while @running
@@ -72,9 +71,31 @@ module Intcode
         opcode, params = read_opcode_and_params(instruction)
 
         execute_instruction(opcode, params)
+
+        # Stop running the program if we have something to output
+        @running = false if @output
       end
 
-      @output
+      # Output one integer at a time, or nil if terminated
+      output_value
+    end
+
+    def terminated?
+      @terminated
+    end
+
+    # Add a new input value
+    def add_input(value)
+      @input << value
+    end
+
+    # Returns current output value & resets output to nil
+    def output_value
+      return nil if terminated?
+      raise "No output value!" if @output.nil?
+      output = @output
+      @output = nil
+      output
     end
 
     private
@@ -135,13 +156,14 @@ module Intcode
     # Opcode: 3
     # Store input at given position
     def input(pos)
-      @program[pos.value] = @input.pop
+      raise "No input found!" if @input.nil? || @input.size.zero?
+      @program[pos.value] = @input.shift
     end
 
     # Opcode: 4
     # Save output, will be returned when program runs.
     def output(pos)
-      @output << param_val(pos)
+      @output = param_val(pos)
     end
 
     # opcode 5
@@ -175,6 +197,7 @@ module Intcode
     # Opcode: 99
     def quit
       @running = false
+      @terminated = true
     end
 
     def param_val(param)
