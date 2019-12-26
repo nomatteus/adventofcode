@@ -13,7 +13,7 @@ module Intcode
   class Param
     attr_reader :mode, :value
 
-    MODES = [:position, :immediate]
+    MODES = [:position, :immediate, :relative]
 
     def initialize(mode: :position, value:)
       raise "Invalid mode" unless MODES.include?(mode)
@@ -40,10 +40,11 @@ module Intcode
       6  => { num_params: 2, method: :jump_if_false },
       7  => { num_params: 3, method: :less_than },
       8  => { num_params: 3, method: :equals },
+      9  => { num_params: 1, method: :relative_base },
       99 => { num_params: 0, method: :quit },
     }
 
-    def initialize(program, input=[])
+    def initialize(program:, input: [], debug: false)
       @original_program = program.dup
       @program = program.dup
       # Input is an array of values
@@ -59,6 +60,12 @@ module Intcode
 
       # Current Instruction
       @current_inst = 0
+
+      # Relative Base
+      @relative_base = 0
+
+      @debug = debug
+      log_debug("Starting computer in debug mode...")
     end
 
     # Input:
@@ -69,6 +76,7 @@ module Intcode
       while @running
         # Read next instruction
         instruction = next_instruction
+        log_debug("Instruction: #{instruction}")
         opcode, params = read_opcode_and_params(instruction)
 
         execute_instruction(opcode, params)
@@ -128,7 +136,13 @@ module Intcode
       param_vals = num_params.times.map { next_instruction }
 
       params = param_vals.map.with_index do |val, i|
-        mode = param_modes[i] == 1 ? :immediate : :position
+        mode = case param_modes[i]
+        when 0 then :position
+        when 1 then :immediate
+        when 2 then :relative
+        else
+          raise "Unsupported mode code: #{param_modes[i]}"
+        end
         Param.new(mode: mode, value: val)
       end
       return opcode, params
@@ -139,26 +153,32 @@ module Intcode
       method = OPCODES[opcode][:method]
       raise "Invalid Opcode: #{opcode}" if method.nil?
 
+      log_debug("  Executing opcode: #{opcode} with method: #{method} and params: #{params.map(&:to_s)}")
+
       self.send(method, *params)
     end
 
     # Opcode: 1
     # Adds 2 numbers, and stores
     def add(param1, param2, pos)
-      @program[pos.value] = param_val(param1) + param_val(param2)
+      @program[pos_val(pos)] = param_val(param1) + param_val(param2)
     end
 
     # Opcode: 2
     # Multiplies 2 numbers, and stores
     def multiply(param1, param2, pos)
-      @program[pos.value] = param_val(param1) * param_val(param2)
+      @program[pos_val(pos)] = param_val(param1) * param_val(param2)
     end
 
     # Opcode: 3
     # Store input at given position
-    def input(pos)
+    def input(param)
       raise "No input found!" if @input.nil? || @input.size.zero?
-      @program[pos.value] = @input.shift
+
+      pos = pos_val(param)
+      @program[pos] = @input.shift
+
+      log_debug("  Input: @program[pos] = #{@program[pos]} (stored at pos: #{pos})")
     end
 
     # Opcode: 4
@@ -185,14 +205,20 @@ module Intcode
     def less_than(param1, param2, pos)
       val = param_val(param1) < param_val(param2) ? 1 : 0
 
-      @program[pos.value] = val
+      @program[pos_val(pos)] = val
     end
 
     # opcode 8
     def equals(param1, param2, pos)
       val = param_val(param1) == param_val(param2) ? 1 : 0
 
-      @program[pos.value] = val
+      @program[pos_val(pos)] = val
+    end
+
+    # opcode 9
+    def relative_base(param)
+      @relative_base += param_val(param)
+      log_debug("  relative base is now: #{@relative_base}")
     end
 
     # Opcode: 99
@@ -201,9 +227,35 @@ module Intcode
       @terminated = true
     end
 
+    # Input: pos (instance of Param)
+    # Output: Integer representing position
+    def pos_val(param)
+      param.mode == :relative ? param.value + @relative_base : param.value
+    end
+
     def param_val(param)
       # Get param value, depending on mode
-      param.mode == :immediate ? param.value : @program[param.value]
+      case param.mode
+      when :immediate then param.value
+      when :position then val_at_position(param.value)
+      when :relative then val_at_position(param.value + @relative_base)
+      else
+        raise "Unsupported param mode: #{param.mode}"
+      end
+    end
+
+    # Get value at specified position in program.
+    # Default for unused positions is 0.
+    # negative positions are invalid
+    def val_at_position(pos)
+      raise "Positions cannot be negative: #{pos}" if pos.negative?
+
+      @program[pos] = 0 if @program[pos].nil?
+      @program[pos]
+    end
+
+    def log_debug(msg)
+      puts msg if @debug
     end
   end
 end
