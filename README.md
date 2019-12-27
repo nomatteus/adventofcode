@@ -20,11 +20,12 @@ Current Progress (as of Dec. 1, 2019):
 | [`2016`](https://adventofcode.com/2016)  | 8/25          | ⬛⬛⬛⬛⬜⬜⬜⬜⬜⬜⬜⬜⬜ 32%   |
 | [`2017`](https://adventofcode.com/2017)  | 🎄**25/25**🎄 | ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛ 100%  |
 | [`2018`](https://adventofcode.com/2018)  | 11/25         | ⬛⬛⬛⬛⬛⬜⬜⬜⬜⬜⬜⬜⬜ 44%   |
-| [`2019`](https://adventofcode.com/2019)  | _WIP_         | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜       |
+| [`2019`](https://adventofcode.com/2019)  | 9/25          | ⬛⬛⬛⬛⬜⬜⬜⬜⬜⬜⬜⬜⬜ 36%   |
 
 Notes:
 
 * Solved means part 1 and 2 are both complete.
+* Progress Bar Generator: <https://changaco.oy.lc/unicode-progress-bars/>
 
-(_Note that I have combined all of my `adventofcode` repos into one, 
+(_Note that I have combined all of my `adventofcode` repos into one,
 so the git history may not be 100% clear._)
