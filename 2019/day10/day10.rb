@@ -70,8 +70,35 @@ asteroids.each do |asteroid|
 end
 
 
-part1_asteroid = asteroids.max_by(&:num_asteroids_can_see)
-
+station_asteroid = asteroids.max_by(&:num_asteroids_can_see)
 
 # Solution: 326 (at location: Vector[22, 28])
-puts "Part 1: #{part1_asteroid.num_asteroids_can_see} (at location: #{part1_asteroid.position})"
+puts "Part 1: #{station_asteroid.num_asteroids_can_see} (at location: #{station_asteroid.position})"
+
+
+# Part 2:
+
+# Build a hash of all the other asteroids, sorted by degree, where
+# the value is a list of other asteroids at that degree, sorted by distance.
+other_asteroids_sorted = station_asteroid.other_asteroids.sort_by(&:angle).group_by(&:angle)
+other_asteroids_sorted.each do |degree, asteroids_info|
+  asteroids_info.sort_by!(&:distance)
+end
+
+# Then, we will iterate through this list and vaporize the first asteroid in the
+# list for each angle (and remove it from the list). We will keep a list of the
+# vaporized asteroids, and use the 200th one to calculate our answer for part 2.
+vaporized_asteroids = []
+
+while other_asteroids_sorted.values.any? { |ai| ai.size > 0 } do
+  other_asteroids_sorted.each do |degree, asteroids_info|
+    next if asteroids_info.empty?
+
+    vaporized_asteroids << asteroids_info.shift
+  end
+end
+
+part2_200th_vaporized = vaporized_asteroids[199].asteroid
+part2 = part2_200th_vaporized.position[0] * 100 + part2_200th_vaporized.position[1]
+
+puts "Part 2: #{part2}"
