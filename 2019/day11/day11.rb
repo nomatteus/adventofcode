@@ -27,7 +27,6 @@ class PaintingRobot
   def initialize(program:, starting_color:)
     @program = program
     @robot = Intcode::Computer.new(program: program, debug: false)
-    @starting_color = starting_color
 
     # Store panel as a hash where key is a Vector and value is current color
     # All panels start as black, so set that as default.
@@ -54,6 +53,7 @@ class PaintingRobot
       # panel the robot is over: 0 means to paint the panel black, and 1 means to
       # paint the panel white.
       new_color = @robot.run
+      break if new_color.nil? # program has terminated
       @panel_grid[@current_location] = new_color
 
       @painted_panels << @current_location
@@ -83,9 +83,30 @@ class PaintingRobot
       @current_location += @current_direction
     end
   end
+
+  # Output grid of panels
+  def to_s
+    # Calculate boundaries
+    left = @painted_panels.map { |panel| panel[0] }.min
+    right = @painted_panels.map { |panel| panel[0] }.max
+    top = @painted_panels.map { |panel| panel[1] }.max
+    bottom = @painted_panels.map { |panel| panel[1] }.min
+
+    top.downto(bottom).map do |col|
+      left.upto(right).map do |row|
+        @panel_grid[Vector[row, col]] == WHITE ? '⬜' : '⬛'
+      end.join
+    end.join("\n")
+  end
 end
 
 part1_robot = PaintingRobot.new(program: program, starting_color: PaintingRobot::BLACK)
 part1_robot.run!
+# Part 1: 2226
+puts "Part 1: #{part1_robot.painted_panels.size} painted panels."
 
-puts "Part 1: #{part1_robot.painted_panels.size} painted panels." # 2226
+# Part 2: HBGLZKLF
+puts "Part 2:"
+part2_robot = PaintingRobot.new(program: program, starting_color: PaintingRobot::WHITE)
+part2_robot.run!
+puts part2_robot
