@@ -54,11 +54,14 @@ asteroids.each do |asteroid|
 
     x = other_asteroid_transposed[0]
     y = other_asteroid_transposed[1]
-    angle = Math.atan2(y, x)
+    angle_rad = Math.atan2(y, x)
+    # Note that we add 90 degrees so that the positive y axis is 0 degrees (makes part 2 simpler)
+    # And then use modulus to ensure we have a positive angle
+    angle_degrees = (angle_rad * 180 / Math::PI + 90) % 360
 
     OtherAsteroidInfo.new(
       asteroid: other_asteroid,
-      angle: angle,
+      angle: angle_degrees,
       distance: other_asteroid_transposed.magnitude
     )
   end.compact
@@ -68,6 +71,7 @@ end
 
 
 part1_asteroid = asteroids.max_by(&:num_asteroids_can_see)
+
 
 # Solution: 326 (at location: Vector[22, 28])
 puts "Part 1: #{part1_asteroid.num_asteroids_can_see} (at location: #{part1_asteroid.position})"
