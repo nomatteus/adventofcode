@@ -1,4 +1,5 @@
 # Copied from day 7 & modified
+# NOTE: Used for day 11 too, as no modifications were required.
 module Intcode
   module Helpers
     # Input:
