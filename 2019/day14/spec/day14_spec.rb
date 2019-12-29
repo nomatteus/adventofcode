@@ -12,7 +12,7 @@ RSpec.describe "Day 14" do
     describe "Part 1" do
       context "my input" do
         it "returns correct answer" do
-          expect(subject.ore_required).to eq(504284)
+          expect(subject.ore_required(quantity: 1)).to eq(504284)
         end
       end
 
@@ -20,7 +20,7 @@ RSpec.describe "Day 14" do
         let(:input_file) { 'examples/input_small1' }
 
         it "returns correct answer" do
-          expect(subject.ore_required).to eq(31)
+          expect(subject.ore_required(quantity: 1)).to eq(31)
         end
       end
 
@@ -28,7 +28,7 @@ RSpec.describe "Day 14" do
         let(:input_file) { 'examples/input_small2' }
 
         it "returns correct answer" do
-          expect(subject.ore_required).to eq(165)
+          expect(subject.ore_required(quantity: 1)).to eq(165)
         end
       end
 
@@ -36,7 +36,7 @@ RSpec.describe "Day 14" do
         let(:input_file) { 'examples/input_small3' }
 
         it "returns correct answer" do
-          expect(subject.ore_required).to eq(13312)
+          expect(subject.ore_required(quantity: 1)).to eq(13312)
         end
       end
 
@@ -44,7 +44,7 @@ RSpec.describe "Day 14" do
         let(:input_file) { 'examples/input_small4' }
 
         it "returns correct answer" do
-          expect(subject.ore_required).to eq(180697)
+          expect(subject.ore_required(quantity: 1)).to eq(180697)
         end
       end
 
@@ -52,7 +52,7 @@ RSpec.describe "Day 14" do
         let(:input_file) { 'examples/input_small5' }
 
         it "returns correct answer" do
-          expect(subject.ore_required).to eq(2210736)
+          expect(subject.ore_required(quantity: 1)).to eq(2210736)
         end
       end
     end

@@ -124,12 +124,11 @@ class Nanofactory
     parse_input!
   end
 
-  # Part 1: How much ORE required to produce ONE unit of FUEL?
-  def ore_required
-    # Trigger generation of everything required to build 1 FUEL
-    fuel_node.generate(quantity: 1)
+  def ore_required(quantity:)
+    # Trigger generation of everything required to build requested quantity of FUEL
+    fuel_node.generate(quantity: quantity)
 
-    # Report how many ORE it took to generate 1 FUEL
+    # Report how many ORE it took to generate requested quantity of FUEL
     ore_node.quantity_generated
   end
 
@@ -196,6 +195,33 @@ end
 # Run only if run from console (not when included in specs)
 if __FILE__ == $0
   nanofactory = Nanofactory.new('input')
-  ore_required = nanofactory.ore_required
+  ore_required = nanofactory.ore_required(quantity: 1)
   puts "Part 1: #{ore_required} ORE required to create 1 FUEL" # 504284
+
+  # Part 2: Use binary search to find max quantity of FUEL that can
+  # be generated given one trillion units of ORE.
+
+  ONE_TRILLION = 1_000_000_000_000
+
+  low = 1
+  high = 1_000_000_000
+  range = high - low
+
+  while range > 1 do
+    range = high - low
+    mid = low + range / 2
+
+    nanofactory2 = Nanofactory.new('input')
+    ore_required = nanofactory2.ore_required(quantity: mid)
+
+    if ore_required > ONE_TRILLION
+      high = mid
+    else
+      low = mid
+    end
+  end
+
+  fuel_generated = low
+
+  puts "Part 2: #{fuel_generated} FUEL can be generated with 1 trillion ORE" # 2690795
 end
