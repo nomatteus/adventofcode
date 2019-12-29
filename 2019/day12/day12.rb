@@ -1,8 +1,10 @@
 require 'pry'
+require 'set'
 require 'matrix'
+require 'victor'
 
 input_file = 'input'
-# input_file = 'input_small'
+# input_file = 'input_small2'
 input = IO.read(input_file).split("\n")
 
 X = 0
@@ -60,30 +62,99 @@ class Moon
   end
 end
 
-moons = input.map do |moon_str|
-  x, y, z = moon_str.scan(/\-?\d+/).map(&:to_i)
-  Moon.new(position: Vector[x, y, z])
-end
 
-num_steps = 1000
+class MoonSimulation
+  attr_reader :dim_sets
 
-puts "After 0 steps:"
-puts moons
-puts "-----"
-
-num_steps.times do |i|
-  # Apply Gravity to every pair of moons
-  moons.permutation(2).each do |(moon1, moon2)|
-    moon1.apply_gravity(moon2)
+  def initialize(input:, debug: false)
+    @moons = input.map do |moon_str|
+      x, y, z = moon_str.scan(/\-?\d+/).map(&:to_i)
+      Moon.new(position: Vector[x, y, z])
+    end
+    @debug = debug
   end
 
-  # Update Velocity
-  moons.each(&:update_velocity)
+  def run_part1(num_steps:)
+    log_debug("After 0 steps:")
+    log_debug(@moons)
+    log_debug("-----")
 
-  puts "After #{i + 1} steps:"
-  puts moons
-  puts "-----"
+    num_steps.times do |i|
+      apply_gravity!
+      update_velocity!
+
+      log_debug("After #{i + 1} steps:")
+      log_debug(@moons)
+      log_debug("-----")
+    end
+  end
+
+  def run_part2
+    @dim_sets = [Set.new, Set.new, Set.new]
+    dim_sets_found = false
+
+    until dim_sets_found do
+      apply_gravity!
+      update_velocity!
+      dim_sets_found = track_dimension_sets!
+    end
+
+    # Now that we know how long it takes each dimension to repeat,
+    # we can find when they all repeat by finding the least common multiple.
+    @dim_sets.map(&:size).reduce(:lcm)
+  end
+
+  def total_energy
+    @moons.sum(&:total_energy)
+  end
+
+  private
+
+  # Apply Gravity to every pair of moons
+  def apply_gravity!
+    @moons.permutation(2).each do |(moon1, moon2)|
+      moon1.apply_gravity(moon2)
+    end
+  end
+
+  def update_velocity!
+    @moons.each(&:update_velocity)
+  end
+
+  # For each dimension, we are tracking the set of positions seen,
+  # so we can detect when they repeat.
+  # Returns: boolean to indicate when we have found the sets for all dimensions
+  def track_dimension_sets!
+    xinfo = dimension_info(X)
+    yinfo = dimension_info(Y)
+    zinfo = dimension_info(Z)
+
+    dim_sets_found = @dim_sets[X].include?(xinfo) && @dim_sets[Y].include?(yinfo) && @dim_sets[Z].include?(zinfo)
+
+    @dim_sets[X] << xinfo
+    @dim_sets[Y] << yinfo
+    @dim_sets[Z] << zinfo
+
+    dim_sets_found
+  end
+
+  # Position & velocity info across one dimension for all moons
+  def dimension_info(dim)
+    positions = @moons.map { |moon| moon.position[dim] }
+    velocities = @moons.map { |moon| moon.velocity[dim] }
+    { pos: positions, vel: velocities }
+  end
+
+  def log_debug(msg)
+    puts msg if @debug
+  end
 end
 
-total_energy = moons.sum(&:total_energy)
-puts "Part 1: Total Energy: #{total_energy}" # 8960
+simulator1 = MoonSimulation.new(input: input)
+simulator1.run_part1(num_steps: 1000)
+puts "Part 1: Total Energy: #{simulator1.total_energy}" # 8960
+
+# Part 2
+simulator2 = MoonSimulation.new(input: input)
+part2 = simulator2.run_part2
+puts "Part 2: #{part2} steps" # 314917503970904
