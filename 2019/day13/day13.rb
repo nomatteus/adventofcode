@@ -1,5 +1,4 @@
 require 'pry'
-# Day 9 Intcode works as-is for this problem, so use that
 require './intcode_day13'
 
 input = IO.read('input')
