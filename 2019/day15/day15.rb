@@ -7,7 +7,10 @@ input = IO.read('input')
 program = Intcode::Helpers.parse_program(input)
 
 class Map
-  attr_reader :current_location, :oxygen_found, :oxygen_location
+  attr_reader :current_location,
+    :oxygen_found,
+    :oxygen_location,
+    :starting_location
 
   TILES = {
     wall: '#',
@@ -22,8 +25,6 @@ class Map
   # Which tiles are considered "open", i.e. we can walk through them
   OPEN_TILES = [:open, :oxygen]
 
-  STARTING_LOCATION = Vector[0, 0]
-
   DIRECTION_VECTORS = {
     north: Vector[0, 1],
     south: Vector[0, -1],
@@ -37,7 +38,8 @@ class Map
     @points = Hash.new(:unknown)
 
     # Init droid at starting location
-    @current_location = STARTING_LOCATION
+    @starting_location = Vector[0, 0]
+    @current_location = @starting_location
     @points[@current_location] = :open
 
     @oxygen_found = false
@@ -227,6 +229,13 @@ class DroidController
     @map.display
   end
 
+  # Part 1: Find shortest number of commands to get from starting point
+  # to oxygen.
+  def start_to_oxygen_commands
+    discover_map
+    @map.find_path_commands(@map.starting_location, @map.oxygen_location)
+  end
+
   # Discover the map
   def discover_map
     # A location is a position + a direction
@@ -241,7 +250,8 @@ class DroidController
     visited_locations = Set.new()
 
     while unvisited_locations.size > 0
-      location_key = unvisited_locations.first
+      # Choose the closest location to avoid having droid go all over the map
+      location_key = unvisited_locations.min_by { |(loc, dir)| (loc - @map.current_location).map(&:abs).sum }
       loc, dir = location_key
 
       # Make sure we are at location
@@ -299,4 +309,6 @@ class DroidController
 end
 
 droid_controller = DroidController.new(program: program)
-droid_controller.discover_map
+commands = droid_controller.start_to_oxygen_commands
+
+puts "Part 1: #{commands.size} commands to get from start to oxygen." # 228
