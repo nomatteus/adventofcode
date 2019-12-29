@@ -1,0 +1,7 @@
+example_id                    | status | run_time        |
+----------------------------- | ------ | --------------- |
+./spec/day14_spec.rb[1:1:1:1] | failed | 0.00008 seconds |
+./spec/day14_spec.rb[1:1:2:1] | failed | 0.00618 seconds |
+./spec/day14_spec.rb[1:1:3:1] | failed | 0.00008 seconds |
+./spec/day14_spec.rb[1:1:4:1] | failed | 0.0001 seconds  |
+./spec/day14_spec.rb[1:1:5:1] | passed | 0.00038 seconds |
