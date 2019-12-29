@@ -103,7 +103,7 @@ class Map
     f_score[start] = h_score(start, goal)
 
     # Note that we add d_score as the weight of the edge, but in our
-    # case, we consider all edges equally, so harcode 1
+    # case, we consider all edges equally, so hardcode 1
     d_score = 1
 
     until open_set.empty? do
@@ -350,4 +350,4 @@ puts "Part 1: #{commands.size} commands to get from start to oxygen." # 228
 droid_controller = DroidController.new(program: program, display: true)
 minutes = droid_controller.oxygen_fill
 
-puts "Part 2: #{minutes} minutes to fill the map with oxygen." #
+puts "Part 2: #{minutes} minutes to fill the map with oxygen." # 348
