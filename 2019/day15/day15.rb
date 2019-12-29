@@ -10,7 +10,8 @@ class Map
   attr_reader :current_location,
     :oxygen_found,
     :oxygen_location,
-    :starting_location
+    :starting_location,
+    :points
 
   TILES = {
     wall: '#',
@@ -115,12 +116,7 @@ class Map
 
       open_set.delete(current)
 
-      # For each neighbour that we can visit (i.e. is :open or :oxygen)
-      valid_neighbours = DIRECTION_VECTORS.values
-        .map { |dir_vec| current + dir_vec }
-        .select { |loc| OPEN_TILES.include?(@points[loc]) }
-
-      valid_neighbours.each do |neighbour_loc|
+      valid_neighbours(current).each do |neighbour_loc|
         tentative_g_score = g_score[current] + d_score
         if g_score[neighbour_loc].nil? || tentative_g_score < g_score[neighbour_loc]
           # This path to neighbor is better than any previous one. Record it!
@@ -135,6 +131,13 @@ class Map
     end
 
     raise "error, no path found!"
+  end
+
+  # Returns a list of all valid neighbours (i.e. locations that can be visited: :open or :oxygen)
+  def valid_neighbours(current)
+    DIRECTION_VECTORS.values
+      .map { |dir_vec| current + dir_vec }
+      .select { |loc| OPEN_TILES.include?(@points[loc]) }
   end
 
   # For A*, this is our heuristic score, i.e. best guess of how close we
@@ -222,11 +225,12 @@ class DroidController
     2 => :found_oxygen,
   }
 
-  def initialize(program:, debug: false)
+  def initialize(program:, debug: false, display: false)
+    @display = display
     @computer = Intcode::Computer.new(program: program, debug: debug)
 
     @map = Map.new
-    @map.display
+    @map.display if @display
   end
 
   # Part 1: Find shortest number of commands to get from starting point
@@ -234,6 +238,35 @@ class DroidController
   def start_to_oxygen_commands
     discover_map
     @map.find_path_commands(@map.starting_location, @map.oxygen_location)
+  end
+
+  # Part 2: Starting with oxygen location, calculate how many minutes it will
+  # take to fill the entire map with oxygen. (Basically BFS with level tracking.)
+  def oxygen_fill
+    discover_map
+
+    # Location + level
+    oxygen_locations = [[@map.oxygen_location, 0]]
+    visited = Set.new(@map.oxygen_location)
+
+    max_level = -1
+
+    until oxygen_locations.empty?
+      loc, level = oxygen_locations.shift
+      max_level = [max_level, level].max
+
+      @map.points[loc] = :oxygen
+      @map.display if @display
+
+      @map.valid_neighbours(loc).each do |neighbour_loc|
+        next if visited.include?(neighbour_loc)
+
+        oxygen_locations << [neighbour_loc, level + 1]
+        visited << neighbour_loc
+      end
+    end
+
+    max_level
   end
 
   # Discover the map
@@ -304,11 +337,17 @@ class DroidController
       @map.found_oxygen(command)
     end
 
-    @map.display
+    @map.display if @display
   end
 end
 
-droid_controller = DroidController.new(program: program)
+droid_controller = DroidController.new(program: program, display: false)
 commands = droid_controller.start_to_oxygen_commands
 
 puts "Part 1: #{commands.size} commands to get from start to oxygen." # 228
+
+
+droid_controller = DroidController.new(program: program, display: true)
+minutes = droid_controller.oxygen_fill
+
+puts "Part 2: #{minutes} minutes to fill the map with oxygen." #
