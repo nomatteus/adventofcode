@@ -84,10 +84,10 @@ class Map
   def find_path(start, goal)
     raise "loc1 must not be the same as loc2" if start == goal
 
-    # Note that we will find shortest path on map as we currently
-    #   know it... there may be a shorter undiscovered path.
     # Using A* path-finding algorithm
     # See pseudocode here: https://en.wikipedia.org/wiki/A*_search_algorithm
+    # https://www.redblobgames.com/pathfinding/a-star/introduction.html
+    # NOTE that this is overkill for this problem...
     open_set = Set.new([start])
     came_from = {}
 
