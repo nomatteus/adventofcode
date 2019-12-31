@@ -29,8 +29,8 @@ class ScaffoldGrid
   X = 0
   Y = 1
 
-  def initialize(program:, debug: false)
-    @computer = Intcode::Computer.new(program: program, debug: debug)
+  def initialize(program:, input: [], debug: false)
+    @computer = Intcode::Computer.new(program: program, input: input, debug: debug)
 
     @positions = {}
   end
@@ -78,6 +78,15 @@ class ScaffoldGrid
     intersections.keys.map { |pos| pos[X] * pos[Y]  }.sum
   end
 
+  def part2
+    result = nil
+    while !@computer.terminated?
+      output = @computer.run
+      result = output unless output.nil?
+    end
+    result
+  end
+
   def to_s
     intersections = find_intersections
     @miny.upto(@maxy).map do |y|
@@ -96,3 +105,31 @@ scaffold_grid = ScaffoldGrid.new(program: program)
 result = scaffold_grid.part1
 puts scaffold_grid
 puts "Part 1: #{result}" # 6672
+
+
+# Part 2
+
+# "Force the vacuum robot to wake up by changing the value in your ASCII program at address 0 from 1 to 2."
+program[0] = 2
+
+# Found the path & functions/routine manually:
+# Path is: L,12,R,4,R,4,R,12,R,4,L,12,R,12,R,4,L,12,R,12,R,4,L,6,L,8,L,8,R,12,R,4,L,6,L,8,L,8,L,12,R,4,R,4,L,12,R,4,R,4,R,12,R,4,L,12,R,12,R,4,L,12,R,12,R,4,L,6,L,8,L,8
+#
+# Can be broken into the following functions:
+#   A = L,12,R,4,R,4
+#   B = R,12,R,4,L,12
+#   C = R,12,R,4,L,6,L,8,L,8
+# And then this main routine:
+#   A,B,B,C,C,A,A,B,B,C
+# Turn input into a list of ascii codes
+input = [
+  "A,B,B,C,C,A,A,B,B,C\n",    # Main Routine
+  "L,12,R,4,R,4\n",           # Function A
+  "R,12,R,4,L,12\n",          # Function B
+  "R,12,R,4,L,6,L,8,L,8\n",   # Function C
+  "n\n",                      # Enable/disable the video feed (y/n)
+].join.chars.map(&:ord)
+
+scaffold_grid2 = ScaffoldGrid.new(program: program, input: input)
+result2 = scaffold_grid2.part2
+puts "Part 2: #{result2}" # 923017
