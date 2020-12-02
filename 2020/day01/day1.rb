@@ -4,7 +4,6 @@ require 'set'
 input = IO.read('./input').strip.split.map(&:to_i)
 
 
-# Returns 2 numbers
 def find_2020sum2(numbers)
   numbers_set = Set.new(numbers)
 
@@ -15,7 +14,7 @@ def find_2020sum2(numbers)
 end
 
 n1, n2 = find_2020sum2(input)
-puts "Numbers found: #{n1} & #{n2}. Part 1: #{n1 * n2}"
+puts "Numbers found: #{n1} & #{n2}. Part 1: #{n1 * n2}" # 870331
 
 
 def find_2020sum3(numbers)
@@ -33,4 +32,4 @@ end
 
 
 n1, n2, n3 = find_2020sum3(input)
-puts "Numbers found: #{n1}, #{n2}, & #{n3}. Part 2: #{n1 * n2 * n3}"
+puts "Numbers found: #{n1}, #{n2}, & #{n3}. Part 2: #{n1 * n2 * n3}" # 283025088
