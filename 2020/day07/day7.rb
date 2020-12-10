@@ -4,6 +4,7 @@ require 'pry'
 
 input = IO.read('./input').strip.split("\n")
 # input = IO.read('./input_small').strip.split("\n")
+# input = IO.read('./input_small2').strip.split("\n")
 
 Edge = Struct.new(:weight, :node)
 Bag = Struct.new(:num, :color)
@@ -86,6 +87,19 @@ class HandyHaversacks
 
   def is_shiny_gold_node?(node)
     node.color == SHINY_GOLD
+  end
+
+  def num_bags_inside_shiny_gold_node
+    shiny_gold_node = @nodes_by_color[SHINY_GOLD]
+
+    # Subtract 1 as we don't count the shiny gold bag itself
+    num_bags_in_node(shiny_gold_node) - 1
+  end
+
+  def num_bags_in_node(node)
+    1 + node.edges.sum do |edge|
+      edge.weight * num_bags_in_node(edge.node)
+    end
   end
 
   # Try using GraphViz to generate an image of our graph
@@ -175,7 +189,7 @@ input_rules = input.map { |rule| parse_rule(rule) }
 
 handy_haversacks = HandyHaversacks.new(input_rules)
 
-# handy_haversacks.generate_graph_image("graph.png")
+# handy_haversacks.generate_graph_image("graph_small.png")
 
 part1_reachable_nodes = handy_haversacks.shiny_gold_reachable_nodes
 
@@ -183,5 +197,5 @@ part1 = part1_reachable_nodes.size
 puts "Part 1: #{part1}" # 101
 
 
-part2 = 
-puts "Part 2: #{part2}"
+part2 = handy_haversacks.num_bags_inside_shiny_gold_node
+puts "Part 2: #{part2}" # 108636
