@@ -11,14 +11,26 @@ class Computer
     @cur_instruction = 0
   end
 
-  def run_part1
+  def run
     @instructions_run = Set.new
 
-    until @instructions_run.include?(@cur_instruction)
+    while true
+      # Stop execution if: infinite loop detected or last instruction executed
+      if @instructions_run.include?(@cur_instruction)
+        return {
+          result: :infinite_loop,
+          acc: @acc
+        }
+      elsif @cur_instruction >= @instructions.size
+        return {
+          result: :terminate,
+          acc: @acc
+        }
+      end
+
       @instructions_run << @cur_instruction
 
       instruction = @instructions[@cur_instruction]
-      puts "[Running instruction: #{@cur_instruction}] #{instruction.to_s}"
       self.send(instruction.op, instruction.arg)
     end
 
@@ -48,12 +60,33 @@ def parse_instruction(instruction_input)
   Instruction.new(op.to_sym, arg.to_i)
 end
 
+# Part 2: Repair boot code and return result.
+def run_part2(instructions)
+  # Try modifying each nop/jmp instruction until we find one that works
+  0.upto(instructions.size - 1) do |i|
+    target_instruction = instructions[i]
+    next unless [:nop, :jmp].include?(target_instruction.op)
+
+    modified_instructions = instructions.dup
+    # Change nop to jmp or vice-versa
+    modified_instructions[i] = Instruction.new(
+      target_instruction.op == :nop ? :jmp : :nop,
+      target_instruction.arg
+    )
+
+    # Try running
+    computer = Computer.new(modified_instructions).run
+
+    return computer if computer[:result] == :terminate
+  end
+end
+
 instructions = input.map { |line| parse_instruction(line) }
 computer = Computer.new(instructions)
 
-part1 = computer.run_part1
-puts "Part 1: #{part1}" # 1384
+part1 = computer.run
+puts "Part 1: #{part1[:acc]}" # 1384
 
 
-part2 = 
-puts "Part 2: #{part2}"
+part2 = run_part2(instructions)
+puts "Part 2: #{part2[:acc]}" # 761
