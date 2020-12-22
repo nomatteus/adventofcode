@@ -87,7 +87,22 @@ class GameOfSeats
       sleep 0.1
 
       prev_grid = @current_grid
-      @current_grid = compute_next_grid
+      @current_grid = compute_next_grid_part1
+    end
+
+    # Return # of occupied seats in current state
+    @current_grid.points.count { |point, value| value == Grid::VALUES[:occupied] }
+  end
+
+  def part2
+    prev_grid = nil
+
+    while @current_grid != prev_grid
+      @current_grid.display_grid
+      sleep 0.1
+
+      prev_grid = @current_grid
+      @current_grid = compute_next_grid_part2
     end
 
     # Return # of occupied seats in current state
@@ -96,7 +111,7 @@ class GameOfSeats
 
   private
 
-  def compute_next_grid
+  def compute_next_grid_part1
     @next_grid = Grid.new
 
     @current_grid.points.each do |point, current_value|
@@ -109,6 +124,38 @@ class GameOfSeats
         # Becomes occupied
         @next_grid.set_value(point, Grid::VALUES[:occupied])
       elsif current_value == Grid::VALUES[:occupied] && adjacent_occupied_count >= 4
+        # Becomes empty
+        @next_grid.set_value(point, Grid::VALUES[:empty])
+      else
+        # Seat does not change
+        @next_grid.set_value(point, current_value)
+      end
+    end
+
+    @next_grid
+  end
+
+  # Not very DRY... 
+  def compute_next_grid_part2
+    @next_grid = Grid.new
+
+    @current_grid.points.each do |point, current_value|
+      visible_occupied_count = DIR_VECTORS.count do |dir|
+        # Can we find an occupied seat in this direction?
+        # We can see until either an occupied or empty seat
+        target_point = point + dir
+        until @current_grid.value_at(target_point).nil? || [Grid::VALUES[:occupied], Grid::VALUES[:empty]].include?(@current_grid.value_at(target_point))  do 
+          target_point += dir
+        end
+
+        # Return true if we found an occupied seat
+        !@current_grid.value_at(target_point).nil? && @current_grid.value_at(target_point) == Grid::VALUES[:occupied]
+      end
+
+      if current_value == Grid::VALUES[:empty] && visible_occupied_count.zero?
+        # Becomes occupied
+        @next_grid.set_value(point, Grid::VALUES[:occupied])
+      elsif current_value == Grid::VALUES[:occupied] && visible_occupied_count >= 5
         # Becomes empty
         @next_grid.set_value(point, Grid::VALUES[:empty])
       else
@@ -133,10 +180,12 @@ def parse_input(input)
 end
 
 grid = parse_input(input)
-game = GameOfSeats.new(grid)
 
-part1 = game.part1
-puts "Part 1: #{part1}"
+game1 = GameOfSeats.new(grid)
+part1 = game1.part1
 
-part2 = 
-puts "Part 2: #{part2}"
+game2 = GameOfSeats.new(grid)
+part2 = game2.part2
+
+puts "Part 1: #{part1}" # 2126
+puts "Part 2: #{part2}" # 1914
