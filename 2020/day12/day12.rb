@@ -61,6 +61,37 @@ class NavigationComputer
     current_position.map(&:abs).sum
   end
 
+  def part2
+    current_position = Vector[0, 0]
+    waypoint = Vector[10, 1]
+
+    @input.each do |instruction|
+      dir, value = parse_instruction(instruction)
+
+      case dir
+      when :north
+        waypoint += DIRECTION_VECTORS[:north] * value
+      when :south
+        waypoint += DIRECTION_VECTORS[:south] * value
+      when :west
+        waypoint += DIRECTION_VECTORS[:west] * value
+      when :east
+        waypoint += DIRECTION_VECTORS[:east] * value
+      when :left
+        waypoint = rotate_waypoint(:left, waypoint, value)
+      when :right
+        waypoint = rotate_waypoint(:right, waypoint, value)
+      when :forward
+        current_position += waypoint * value
+      else
+        raise "Invalid dir: #{dir}"
+      end
+    end
+
+    # Manhattan distance from 0,0
+    current_position.map(&:abs).sum
+  end
+
   private
 
   # Given an instruction, output a direction and value
@@ -81,6 +112,22 @@ class NavigationComputer
 
     DIRECTION_VECTORS[new_direction]
   end
+
+  # Assumptions: Degrees is one of: [90, 180, 270]
+  def rotate_waypoint(direction, current_waypoint, degrees)
+    raise "Invalid degrees: #{degrees}" unless [90, 180, 270].include?(degrees)
+    return rotate_waypoint(:right, current_waypoint, 360 - degrees) if direction == :left
+
+    (degrees / 90).times { current_waypoint = rotate90(current_waypoint) }
+    current_waypoint
+  end
+
+  # Rotate right 90 degrees
+  # e.g. (10, 4) => (4, -10) => (-10, -4), (-4, 10) => (10, 4)
+  def rotate90(current_waypoint)
+    x, y = *current_waypoint
+    Vector[y, -x]
+  end
 end
 
 
@@ -90,5 +137,5 @@ part1 = computer.part1
 puts "Part 1: #{part1}" # 1710
 
 
-part2 = 
-puts "Part 2: #{part2}"
+part2 = computer.part2
+puts "Part 2: #{part2}" # 62045
