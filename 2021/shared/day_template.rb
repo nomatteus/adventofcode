@@ -1,8 +1,8 @@
 require 'pry'
 require 'matrix'
 
-input = IO.read('./input').strip.split
-# input = IO.read('./input_small').strip.split
+#input = IO.read('./input').strip.split
+input = IO.read('./input_small').strip.split
 
 part1 = 
 
