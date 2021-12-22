@@ -1,40 +1,38 @@
 require 'pry'
 require 'matrix'
 
-# input = IO.read('./input').strip.split(",").map(&:to_i)
-input = IO.read('./input_small').strip.split(",").map(&:to_i)
-
+input = IO.read('./input').strip.split(",").map(&:to_i)
+# input = IO.read('./input_small').strip.split(",").map(&:to_i)
 
 def lanternfish_simulate(nums, number_of_days)
-  current_nums = nums
+  # Store a tally of lanternfish num => count, e.g.:
+  #   {3=>2, 4=>1, 1=>1, 2=>1}
+  # We'll use this for more efficient simulation calculations
+  current_tally = Hash.new(0).merge(nums.tally)
   number_of_days.times do
-    result = current_nums.map { |num| one_day(num) }.flatten
-    current_nums = result
+    new_tally = Hash.new(0)
+
+    # Save this as we'll overwrite in the loop
+    num_new_laternfish = current_tally[0]
+
+    # No new laternfish, just decrement our counts
+    1.upto(8).each do |num|
+      new_tally[num - 1] = current_tally[num]
+    end
+
+    # Generate new laternfish
+    new_tally[6] += num_new_laternfish
+    new_tally[8] += num_new_laternfish
+
+    current_tally = new_tally
   end
-  current_nums
+  # Count all laternfish to get result
+  current_tally.values.sum
 end
 
-# Simulate a day for a single fish, returns a list of laternfish
-# (size 1 if no new fish generated, size 2 othersize)
-def one_day(num)
-  # Reset to 6 and generate a new fish with timeer 8
-  return [6, 8] if num.zero?
-
-  # Otherwise just decrement timer by 1
-  [num - 1]
-end
-
-binding.pry
-
-part1_result = lanternfish_simulate(input, 80)
-part1 = part1_result.size
-
+part1 = lanternfish_simulate(input, 80)
 puts "Part 1: #{part1}" # 355386
 
-
 # Part 2
-
-part2_result = lanternfish_simulate(input, 256)
-part2 = part2_result.size
-
-puts "Part 2: #{part2}"
+part2 = lanternfish_simulate(input, 256)
+puts "Part 2: #{part2}" # 1613415325809
