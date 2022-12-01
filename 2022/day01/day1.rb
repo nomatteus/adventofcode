@@ -1,10 +1,12 @@
 require 'pry'
 
-input = IO.read('./input').strip.split.map(&:to_i)
+input = IO.read('./input').strip.split("\n\n")
 
-part1 = 
+groups = input.map { |i| i.split.map(&:to_i).sum }
 
-part2 = 
+part1 = groups.max
 
-puts "Part 1: #{part1}"
-puts "Part 2: #{part2}"
+part2 = groups.sort.last(3).sum
+
+puts "Part 1: #{part1}" # 72017
+puts "Part 2: #{part2}" # 212520
