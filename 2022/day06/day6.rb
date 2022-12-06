@@ -1,7 +1,6 @@
 require 'pry'
 
 input = IO.read('./input').strip.chars
-input = IO.read('./input_small').strip.chars
 
 found = false
 # Starting index of end of first group of 4
