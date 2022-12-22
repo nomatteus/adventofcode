@@ -26,18 +26,18 @@ class Packet
 
       if left_val.is_a?(Integer) && right_val.is_a?(Integer)
         # Compare integers
-        return 1 if left_val < right_val
-        return -1 if left_val > right_val
+        return -1 if left_val < right_val
+        return 1 if left_val > right_val
         # if they're the same value, we'll continue checking
       elsif left_val.nil? && right_val.nil?
         # arrays were the same size and result inconclusive, so keep checking...
         return 0
       elsif left_val.nil?
         # left side ran out of items first, so this is in right order
-        return 1
+        return -1
       elsif right_val.nil?
         # right side ran out of items first, so not in right order
-        return -1
+        return 1
       else
         # Either both or one of the items is array, so compare as arrays
         result = Packet.new(Array(left_val)) <=> Packet.new(Array(right_val))
@@ -53,7 +53,7 @@ class Packet
 end
 
 part1 = input.map.with_index do |(left, right), i| 
-  result = Packet.new(left) > Packet.new(right)
+  result = Packet.new(left) < Packet.new(right)
   puts "pair #{i + 1} is #{!result ? 'NOT ' : ''}in right order\n============================"
 
   # Sum indexes in right order for part 1
@@ -61,10 +61,12 @@ part1 = input.map.with_index do |(left, right), i|
 end.sum
 
 
-# binding.pry
-
-part1 = 
-part2 = 
+# For part 2, we no longer use pairs, and insert 2 additional divider packets
+DIVIDER1 = [[2]]
+DIVIDER2 = [[6]]
+part2_packets = (input.flatten(1) + [DIVIDER1, DIVIDER2]).map { |p| Packet.new(p) }.sort
+# (remember that packet indexes are 1-based, so we add +1)
+part2 = (part2_packets.index(Packet.new(DIVIDER1)) + 1) * (part2_packets.index(Packet.new(DIVIDER2)) + 1)
 
 puts "Part 1: #{part1}" # 6272
-puts "Part 2: #{part2}"
+puts "Part 2: #{part2}" # 22288
